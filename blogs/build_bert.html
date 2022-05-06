@@ -1,0 +1,297 @@
+<!doctype html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- 上述3个meta标签*必须*放在最前面，任何其他内容都*必须*跟随其后！ -->
+    <title>Blog</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css"
+        integrity="sha384-HSMxcRTRxnN+Bdg0JdbxYKrThecOKuH5zCYotlSAcp1+c8xmyTe9GYg1l9a69psu" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.15.1/dist/katex.min.css"
+        integrity="sha384-R4558gYOUz8mP9YWpZJjofhk+zx0AS11p36HnD2ZKj/6JR5z27gSSULCNHIRReVs" crossorigin="anonymous">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.15.1/dist/katex.min.js"
+        integrity="sha384-z1fJDqw8ZApjGO3/unPWUPsIymfsJmyrDVWC8Tv/a1HeOtGmkwNd/7xUS0Xcnvsx"
+        crossorigin="anonymous"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.15.1/dist/contrib/auto-render.min.js"
+        integrity="sha384-+XBljXPPiv+OzfbB3cVmLHf4hdUFHlWNZN5spNQ7rmHTXpd7WvJum6fIACpNNfIR"
+        crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="../css/base.css">
+    <link rel="stylesheet" href="../css/blog.css">
+    <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <p class="title">
+                <a class="undecorated-link" href="../index.html">HOME</a>
+                <a class="undecorated-link left-margin right" href="../projects.html">Projects</a>
+                <a class="undecorated-link left-margin right" href="../blogs.html">Blog</a>
+                <a class="undecorated-link left-margin right" href="../about.html">About</a>
+            </p>
+            <h1 class="text-center">Do you really understand BERT? Implement minimal BERT from Scratch</h1>
+            <p class="text-center">
+                <span class="glyphicon glyphicon-calendar"></span> <span>Dec 27 2021</span>
+                <span class="glyphicon glyphicon-book left-margin"></span> <span><a href="../uncategories.html">NLP</a></span>
+            </p>
+        </div>
+        <div class="content">
+            <h2>Preface</h2>
+            <p>PTMs has become the most popular baseline models in various natural language processing tasks. Being the representatives of these pretrained models, BERT is naturally used in many AI products. For a deeper understanding of BERT, this blog will take you to implement a minimal BERT solely based on PyTorch.</p>
+            <h2>Hyperparameters</h2>
+            <p>All the hyperparameters are hardcoded in order to concentrate on the architecture.</p>
+            <pre>import math
+import torch
+import torch.nn as nn
+from torch.nn.modules.loss import CrossEntropyLoss
+
+
+class BertParam:
+    vocab_size = 21128
+    pad_token_id = 0
+    type_vocab_size = 2  # size of the token type id
+
+    dropout_prob = 0.1  # all the dropout rate in BERT are the same
+    layer_norm_eps = 1e-12  # layer normalization
+    initializer_range = 0.02
+
+    num_hidden_layers = 12  # the number of transformer encoder
+    num_attention_heads = 12  # the number of attention head
+
+    hidden_size = 768
+    intermediate_size = 3072
+    max_position_embeddings = 512
+
+    pooler_num_fc_layers = 3
+    pooler_size_per_head = 128</pre>
+            <h2>Transformer Encoder</h2>
+            <p>Implementation of the transformer encoder layer in BERT, there are totally 12 layers in BERT-base.</p>
+            <pre>class BertEncoderLayer(nn.Module):
+    """
+    Transformer Encoder Layer in BERT
+    """
+
+    def __init__(self, config: BertParam):
+        super().__init__()
+        if config.hidden_size % config.num_attention_heads != 0:
+            raise ValueError('hidden_size mod num_attention_heads must be zero!')
+
+        """ 
+        BertSelfAttention in BertAttention
+        """
+        self.num_attention_heads = config.num_attention_heads
+        self.attention_head_size = config.hidden_size // self.num_attention_heads
+        self.all_head_size = self.num_attention_heads * self.attention_head_size
+        self.query = nn.Linear(config.hidden_size, self.all_head_size)
+        self.key = nn.Linear(config.hidden_size, self.all_head_size)
+        self.value = nn.Linear(config.hidden_size, self.all_head_size)
+        self.self_attention_dropout = nn.Dropout(config.dropout_prob)
+
+        """ 
+        BertSelfOutput in BertAttention
+        """
+        self.self_output_dense = nn.Linear(
+            config.hidden_size, config.hidden_size)
+        self.self_output_layer_norm = nn.LayerNorm(
+            config.hidden_size, eps=config.layer_norm_eps)
+        self.self_output_dropout = nn.Dropout(config.dropout_prob)
+
+        """
+        BertIntermediate
+        """
+        self.intermediate_dense = nn.Linear(
+            config.hidden_size, config.intermediate_size)
+
+        """
+        BertOutput
+        """
+        self.output_dense = nn.Linear(
+            config.intermediate_size, config.hidden_size)
+        self.output_layer_norm = nn.LayerNorm(
+            config.hidden_size, eps=config.layer_norm_eps)
+        self.output_dropout = nn.Dropout(config.dropout_prob)
+
+    def transpose_for_scores(self, x):
+        # [B, L] + [12, 64] => [B, L, 12, 64]
+        # new_x_shape = x.size()[
+        #     :-1] + (self.num_attention_heads, self.attention_head_size)
+        # x = x.view(*new_x_shape)
+        x = x.reshape([x.size(0), x.size(1), self.num_attention_heads, self.attention_head_size])
+        return x.permute(0, 2, 1, 3)  # [B, 12, L, 64]
+
+    def forward(self, hidden_states, attention_mask):
+        """
+        currently not considering head mask and head pruning, and does not return past_key_value
+        """
+
+        """
+        SelfAttention
+        """
+
+        # [B, L, hidden_size] -> [B, L, all_head_size]
+        #                     -> [B, num_attention_heads, L, head_size]
+        query_output = self.query(hidden_states)
+        query_layer = self.transpose_for_scores(query_output)
+        key_layer = self.transpose_for_scores(self.key(hidden_states))
+        value_layer = self.transpose_for_scores(self.value(hidden_states))
+
+        # [B, num_heads, L, L]
+        attention_scores = torch.matmul(
+            query_layer, key_layer.transpose(-1, -2))
+        attention_scores = attention_scores / \
+            math.sqrt(self.attention_head_size)
+        if attention_mask is not None:
+            attention_scores = attention_scores + attention_mask
+
+        # normalize the attention score, [B, 12, L, L]
+        attention_probs = torch.softmax(attention_scores, dim=-1)
+        # this may be weird, but the it does happen in original Transformer paper
+        attention_probs = self.self_attention_dropout(attention_probs)
+
+        # [B, 12, L, 64]
+        context_layer = torch.matmul(attention_probs, value_layer)
+        # [B, 12, L, 64] => [B, L, 12, 64]
+        context_layer = context_layer.permute(0, 2, 1, 3).contiguous()
+        # [B, L] + [768] => [B, L, 768] 
+        new_context_layer_shape = context_layer.size()[
+            :-2] + (self.all_head_size,)
+        # [B, L, 768]
+        # context_layer = context_layer.view(*new_context_layer_shape)
+        context_layer = context_layer.reshape(new_context_layer_shape)
+
+        """
+        BertSelfOutput
+        """
+        context_layer = self.self_output_dense(context_layer)
+        context_layer = self.self_output_dropout(context_layer)
+        attention_output = self.self_output_layer_norm(
+            context_layer + hidden_states)
+
+        """
+        BertIntermediate
+        """
+        intermediate_output = self.intermediate_dense(attention_output)
+        intermediate_output = nn.functional.gelu(intermediate_output)
+
+        """
+        BertOutput
+        """
+        layer_output = self.output_dense(intermediate_output)
+        layer_output = self.output_dropout(layer_output)
+        layer_output = self.output_layer_norm(layer_output + attention_output)
+
+        return layer_output</pre>
+            <h2>BERT</h2>
+            <p>BERT consists of three parts:</p>
+            <ul>
+                <li>The first part is the embedding layer, where three kind of embedings(token/positional/token type) will be summed and then passed to layer normalization and dropout layer;</li>
+                <li>The second part is 12 transformer encoder layers, each layer is formed by self-attention layer and feed-forward layer; </li>
+                <li>The third part is the pooler layer placed on the top of <code>[CLS]</code> token.</li>
+            </ul>
+            <pre>class Bert(nn.Module):
+    def __init__(self, config: BertParam):
+        super().__init__()
+        self.config = config
+        # input embeddings
+        self.token_embeddings = nn.Embedding(
+            config.vocab_size,  config.hidden_size, padding_idx=config.pad_token_id)
+        self.position_embeddings = nn.Embedding(
+            config.max_position_embeddings, config.hidden_size)
+        self.token_type_embeddings = nn.Embedding(
+            config.type_vocab_size, config.hidden_size)
+        self.LayerNorm = nn.LayerNorm(
+            config.hidden_size, eps=config.layer_norm_eps)
+        self.dropout = nn.Dropout(config.dropout_prob)
+        # encoder
+        self.encoder = nn.ModuleList(BertEncoderLayer(
+            config) for _ in range(config.num_hidden_layers))
+        # pooler
+        self.pooler_dense = nn.Linear(config.hidden_size, config.hidden_size)
+
+        self.apply(self._init_weights)
+
+    def _init_weights(self, module):
+        """ Initialize the weights """
+        if isinstance(module, (nn.Linear, nn.Embedding)):
+            # Slightly different from the TF version which uses truncated_normal for initialization
+            # cf https://github.com/pytorch/pytorch/pull/5617
+            module.weight.data.normal_(mean=0.0, std=self.config.initializer_range)
+        elif isinstance(module, nn.LayerNorm):
+            module.bias.data.zero_()
+            module.weight.data.fill_(1.0)
+        if isinstance(module, nn.Linear) and module.bias is not None:
+            module.bias.data.zero_()
+
+    def forward(self, input_ids, attention_mask, token_type_ids, position_ids):
+        """
+        input_ids and attention_mask can not be empty
+        token_type_ids = torch.zeros_like(input_ids, dtype=torch.long)
+        position_ids = torch.arange(args.eval_max_seq_len).unsqueeze(dim=0).repeat([input_ids.size(0), 1])
+        """
+
+        token_emb = self.token_embeddings(input_ids)
+        token_type_emb = self.token_type_embeddings(token_type_ids)
+        position_emb = self.position_embeddings(position_ids)
+
+        embeddings = token_emb + token_type_emb + position_emb
+        embeddings = self.LayerNorm(embeddings)
+        embeddings = self.dropout(embeddings)
+
+        attention_mask = (1.0 - attention_mask) * -10000.0  # [B, L]
+        attention_mask = attention_mask.unsqueeze(
+            dim=1).unsqueeze(dim=1)  # [B, 1, 1, L]
+
+        hidden_states = embeddings
+        for layer_module in self.encoder:
+            layer_outputs = layer_module(hidden_states, attention_mask)
+            hidden_states = layer_outputs
+
+        pooler_output = self.pooler_dense(hidden_states[:, 0])  # pass [CLS] token's representation to pooler
+        pooler_output = torch.tanh(pooler_output)
+
+        return {'last_hidden_state': hidden_states, 'pooler': pooler_output}</pre>
+            <p>You can make few changes to the output if current code does not satisfy your demands.</p>
+            <h2>In the End</h2>
+            <p>Notice that <span class="text-red">our minimal BERT can easily load weights from pretrained models published on model hubs, such as HuggingFace's Transformers.</span> Considering it is not hard to do so, I am not going to stick the code here. If you really need it, <u><a href="https://github.com/flyangovoyang/flyangovoyang.github.io/issues" class="text-primary">commit an issue</a></u> and offer your email.</p>
+            <p>See you next time.</p>
+        </div>
+        <div class="footer">
+            <hr>
+            <p class="text-center">2020-2022@Beijing</p> 
+            <p>
+                <span id="busuanzi_container_site_uv">
+                    <span id="busuanzi_value_site_uv"></span> visitors|
+                    <span id="busuanzi_value_site_pv"></span> visits
+                </span>
+            </p>
+        </div>
+    </div>
+    <!-- jQuery (Bootstrap 的所有 JavaScript 插件都依赖 jQuery，所以必须放在前边) -->
+    <script src="https://fastly.jsdelivr.net/npm/jquery@1.12.4/dist/jquery.min.js"
+        integrity="sha384-nvAa0+6Qg9clwYCGGPpDQLVpLNn0fRaROjHqs13t4Ggj3Ez50XnGQqc/r8MhnRDZ"
+        crossorigin="anonymous"></script>
+    <!-- 加载 Bootstrap 的所有 JavaScript 插件。你也可以根据需要只加载单个插件。 -->
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"
+        integrity="sha384-aJ21OjlMXNL5UyIl/XNwTMqvzeRMZH2w8c5cRVpzpU8Y5bApTppSuUkhZXN0VxHd"
+        crossorigin="anonymous"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            renderMathInElement(document.body, {
+                // customised options
+                // • auto-render specific keys, e.g.:
+                delimiters: [
+                    { left: '$$', right: '$$', display: true },
+                    { left: '$', right: '$', display: false },
+                    { left: '\\(', right: '\\)', display: false },
+                    { left: '\\[', right: '\\]', display: true }
+                ],
+                // • rendering keys, e.g.:
+                throwOnError: false
+            });
+        });
+    </script>
+</body>
+
+</html>
