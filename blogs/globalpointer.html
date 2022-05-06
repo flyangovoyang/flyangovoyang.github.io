@@ -1,0 +1,195 @@
+<!doctype html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- 上述3个meta标签*必须*放在最前面，任何其他内容都*必须*跟随其后！ -->
+    <title>Blog</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css"
+        integrity="sha384-HSMxcRTRxnN+Bdg0JdbxYKrThecOKuH5zCYotlSAcp1+c8xmyTe9GYg1l9a69psu" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.15.1/dist/katex.min.css"
+        integrity="sha384-R4558gYOUz8mP9YWpZJjofhk+zx0AS11p36HnD2ZKj/6JR5z27gSSULCNHIRReVs" crossorigin="anonymous">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.15.1/dist/katex.min.js"
+        integrity="sha384-z1fJDqw8ZApjGO3/unPWUPsIymfsJmyrDVWC8Tv/a1HeOtGmkwNd/7xUS0Xcnvsx"
+        crossorigin="anonymous"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.15.1/dist/contrib/auto-render.min.js"
+        integrity="sha384-+XBljXPPiv+OzfbB3cVmLHf4hdUFHlWNZN5spNQ7rmHTXpd7WvJum6fIACpNNfIR"
+        crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="../css/base.css">
+    <link rel="stylesheet" href="../css/blog.css">
+    <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <p class="title">
+                <a class="undecorated-link" href="../index.html">MATRIX</a>
+                <a class="undecorated-link left-margin right" href="../projects.html">Projects</a>
+                <a class="undecorated-link left-margin right" href="../blogs.html">Blog</a>
+                <a class="undecorated-link left-margin right" href="../about.html">About</a>
+            </p>
+            <h1 class="text-center">GlobalPointer</h1>
+            <p class="text-center">
+                <span class="glyphicon glyphicon-calendar"></span> <span>May 6 2022</span>
+                <span class="glyphicon glyphicon-book left-margin"></span> <span><a
+                        href="../uncategories.html">NLP</a></span>
+            </p>
+        </div>
+        <div class="content">
+            <h2>简介</h2>
+            <p>GlobalPointer是一种基于span分类的解码方法。对于任意句子，GlobalPointer构造一个上三角矩阵来遍历所有有效的span，如下图所示，每一个格子对应一个entity span.</p>
+            <p class="text-center"><img src="../images/gp_model.png" width=800></p>
+            <p>暂时假设实体类别只有一个，假设经过encoder（lstm或者bert）后，位置$i$和$j$处的representation为$h_i$和$h_j$，经过全连接层分别得到二者的query向量$q_i$和key向量$k_i$：
+            </p>
+            <p>
+                $$
+                \begin{aligned}
+                q_i & = W_q h_i + b_q \\
+                k_i & = W_k h_j + b_k
+                \end{aligned}
+                $$
+            </p>
+            <p>于是每个span预测为实体的分数$s(i,j)$为：</p>
+            <p>
+                $$
+                s(i,j) = q_i^{\top}k_j
+                $$
+            </p>
+            <p>但这并非最终形态，GlobalPointer在此基础上融入旋转位置编码（RoPE）机制来显式地给span pair的预测引入相对位置信息。</p>
+            <h2>旋转位置编码</h2>
+            <p>对于位置$m$，RoPE会计算出一个正交矩阵$R_m$，将$R_m$与$\bold{q}$相乘便实现对$\bold{q}$进行旋转，如果$\bold{q}$是二维，有：</p>
+            <p>
+                $$
+                \boldsymbol{f}(\boldsymbol{q}, m) =\begin{pmatrix}
+                \cos m\theta & -\sin m\theta\\ \sin m\theta & \cos m\theta
+                \end{pmatrix} \begin{pmatrix}q_0 \\ q_1\end{pmatrix}
+                $$
+            </p>
+            <p>对于高阶偶数维的$\bold{q}$，有：</p>
+            <p>
+                $$
+                \scriptsize{\underbrace{\begin{pmatrix}
+                \cos m\theta_0 & -\sin m\theta_0 & 0 & 0 & \cdots & 0 & 0 \\
+                \sin m\theta_0 & \cos m\theta_0 & 0 & 0 & \cdots & 0 & 0 \\
+                0 & 0 & \cos m\theta_1 & -\sin m\theta_1 & \cdots & 0 & 0 \\
+                0 & 0 & \sin m\theta_1 & \cos m\theta_1 & \cdots & 0 & 0 \\
+                \vdots & \vdots & \vdots & \vdots & \ddots & \vdots & \vdots \\
+                0 & 0 & 0 & 0 & \cdots & \cos m\theta_{d/2-1} & -\sin m\theta_{d/2-1} \\
+                0 & 0 & 0 & 0 & \cdots & \sin m\theta_{d/2-1} & \cos m\theta_{d/2-1} \\
+                \end{pmatrix}}_{\boldsymbol{\mathcal{R}}_m} \begin{pmatrix}q_0 \\ q_1 \\ q_2 \\ q_3 \\ \vdots \\ q_{d-2}
+                \\ q_{d-1}\end{pmatrix}}
+                $$
+            </p>
+            <p>于是以此类推，如果将$\bold{k}$也乘上旋转位置编码，此时span的分数$s(i,j)$就会带有相对位置信息（也就是$\boldsymbol{\mathcal{R}}_{n-m}$）：</p>
+            <p>
+                $$
+                (\boldsymbol{\mathcal{R}}_m \boldsymbol{q})^{\top}(\boldsymbol{\mathcal{R}}_n \boldsymbol{k}) =
+                \boldsymbol{q}^{\top} \boldsymbol{\mathcal{R}}_m^{\top}\boldsymbol{\mathcal{R}}_n \boldsymbol{k} =
+                \boldsymbol{q}^{\top} \boldsymbol{\mathcal{R}}_{n-m} \boldsymbol{k}
+                $$
+            </p>
+            <blockquote>
+                <p>注意:</p>
+                <p>$\cal{R}_m^{\top}\cal{R}_n = \cal{R}_{n-m}$是RoPE自带的性质，具体可查看RoPE的理论证明。</p>
+            </blockquote>
+            <h2>损失函数的设计</h2>
+            <p>为方便表示，上文一直假设实体类别只有一个。对于$m$个实体类别，句子统一长度为$L$，每个实体类别对应一个头（head），即GlobalPointer的输出张量的shape为$[batch\_size, m,
+                L, L]$. GlobalPointer的损失函数和circle loss类似，对于span分类，可得到如下的损失函数：</p>
+            <p>
+                $$
+                \begin{aligned}\log \bigg(1 + \sum \limits_{i\in\Omega_{neg},j \in \Omega_{pos}} e^{s_i-s_j}\bigg)=\log
+                \bigg(1 + \sum \limits_{i\in \Omega_{neg}} e^{s_i}\sum \limits_{j\in \Omega_{pos}} e^{-s_j}\bigg)
+                \end{aligned}
+                $$
+            </p>
+            <p>其中$\Omega_{neg},
+                \Omega_{pos}$分别当前实体类别下的负样例span集合和正样例span集合，由于$log$的递减性以及和max激活函数的近似性，该式会使得非实体span的分数$s_i$小于实体span的分数$s_j$.
+            </p>
+            <p>但是使用该式子作为损失函数，只能使得实体span的预测分数大于非实体span的预测分数，再加上当前句子包含实体的个数是未知的，无法从$\frac{L*L}{2}$个span中选出所有实体span，一个直观的解决办法是卡一个阈值。
+            </p>
+            <p>GlobalPointer引入一个额外的实体类别$O$，并规定所有实体span中预测分数大于0，所有非实体span的预测分数小于0，于是便在$e^{s_i-s_j}$的基础上再添加$e^{s_i-s_0}$和$e^{s_0-s_j}$两项（$s_0$等于0）：
+            </p>
+            <p>
+                $$
+                \begin{aligned}\begin{aligned} &\log \left(1 + \sum\limits_{i\in\Omega_{neg},j\in\Omega_{pos}}
+                e^{s_i-s_j}+\sum\limits_{i\in\Omega_{neg}} e^{s_i-s_0}+\sum\limits_{j\in\Omega_{pos}}
+                e^{s_0-s_j}\right)\\ =&\log \left(e^{s_0} + \sum\limits_{i\in\Omega_{neg}} e^{s_i}\right) + \log
+                \left(e^{-s_0} + \sum\limits_{j\in\Omega_{pos}} e^{-s_j}\right)\\ \end{aligned}\end{aligned}
+                $$
+            </p>
+            <p>把$s_0=0$代入上式得到：</p>
+            <p>
+                $$
+                \begin{aligned}
+                \log \bigg( 1 + \sum_{i \in \Omega_{neg}} e^{s_i} \bigg) + \log \bigg(1 + \sum \limits_{j \in
+                \Omega_{pos}} e^{-s_j}\bigg)
+                \end{aligned}
+                $$
+            </p>
+            <h2>实验</h2>
+            <p>用PyTorch复现GlobalPointer，在多个数据集上验证GlobalPointer的成绩，结果如下：</p>
+            <table class="table table-border table-hover">
+                <tr>
+                    <th></th>
+                    <th>MSRA</th>
+                    <th>cluener</th>
+                    <th>weibo</th>
+                </tr>
+                <tr>
+                    <td>BERT</td>
+                    <td>96.12</td>
+                    <td>TBD</td>
+                    <td>TBD</td>
+                </tr>
+                <tr>
+                    <td>BERT-Globalpointer</td>
+                    <td>96.99</td>
+                    <td>TBD</td>
+                    <td>TBD</td>
+                </tr>
+                <p>MSRA NER数据集上，设置train_max_len=128, eval_max_len=256</p>
+                <blockquote>msra数据集的训练集长度都在128以内，但是评测集会大于256，所以如果在128内评测，可以达到95，但是在256的范围内会降低至94，如果不限制长度，会降至87
+                </blockquote>
+            </table>
+        </div>
+        <div class="footer">
+            <hr>
+            <p class="text-center">2020-2022@Beijing</p>
+            <p>
+                <span id="busuanzi_container_site_uv">
+                    <span id="busuanzi_value_site_uv"></span>visitors|
+                    <span id="busuanzi_value_site_pv"></span>visits
+                </span>
+            </p>
+        </div>
+    </div>
+    <!-- jQuery (Bootstrap 的所有 JavaScript 插件都依赖 jQuery，所以必须放在前边) -->
+    <script src="https://fastly.jsdelivr.net/npm/jquery@1.12.4/dist/jquery.min.js"
+        integrity="sha384-nvAa0+6Qg9clwYCGGPpDQLVpLNn0fRaROjHqs13t4Ggj3Ez50XnGQqc/r8MhnRDZ"
+        crossorigin="anonymous"></script>
+    <!-- 加载 Bootstrap 的所有 JavaScript 插件。你也可以根据需要只加载单个插件。 -->
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"
+        integrity="sha384-aJ21OjlMXNL5UyIl/XNwTMqvzeRMZH2w8c5cRVpzpU8Y5bApTppSuUkhZXN0VxHd"
+        crossorigin="anonymous"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            renderMathInElement(document.body, {
+                // customised options
+                // • auto-render specific keys, e.g.:
+                delimiters: [
+                    { left: '$$', right: '$$', display: true },
+                    { left: '$', right: '$', display: false },
+                    { left: '\\(', right: '\\)', display: false },
+                    { left: '\\[', right: '\\]', display: true }
+                ],
+                // • rendering keys, e.g.:
+                throwOnError: false
+            });
+        });
+    </script>
+</body>
+
+</html>

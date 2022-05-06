@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- 上述3个meta标签*必须*放在最前面，任何其他内容都*必须*跟随其后！ -->
+    <title>Blog</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css"
+        integrity="sha384-HSMxcRTRxnN+Bdg0JdbxYKrThecOKuH5zCYotlSAcp1+c8xmyTe9GYg1l9a69psu" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.15.1/dist/katex.min.css"
+        integrity="sha384-R4558gYOUz8mP9YWpZJjofhk+zx0AS11p36HnD2ZKj/6JR5z27gSSULCNHIRReVs" crossorigin="anonymous">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.15.1/dist/katex.min.js"
+        integrity="sha384-z1fJDqw8ZApjGO3/unPWUPsIymfsJmyrDVWC8Tv/a1HeOtGmkwNd/7xUS0Xcnvsx"
+        crossorigin="anonymous"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.15.1/dist/contrib/auto-render.min.js"
+        integrity="sha384-+XBljXPPiv+OzfbB3cVmLHf4hdUFHlWNZN5spNQ7rmHTXpd7WvJum6fIACpNNfIR"
+        crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="../css/base.css">
+    <link rel="stylesheet" href="../css/blog.css">
+    <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <p class="title">
+                <a class="undecorated-link" href="../index.html">MATRIX</a>
+                <a class="undecorated-link left-margin right" href="../projects.html">Projects</a>
+                <a class="undecorated-link left-margin right" href="../blogs.html">Blog</a>
+                <a class="undecorated-link left-margin right" href="../about.html">About</a>
+            </p>
+            <h1 class="text-center">BioSyn</h1>
+            <p class="text-center">
+                <span class="glyphicon glyphicon-calendar"></span> <span>May 5 2022</span>
+                <span class="glyphicon glyphicon-book left-margin"></span> <span><a
+                        href="../uncategories.html">NLP</a></span>
+            </p>
+            
+        </div>
+        <div class="content">
+            <h2>背景</h2>
+            <p>考虑到在医学领域中，每个医学标准实体都有一个医学实体ID和若干个同义词，于是本文提出利用医学实体同义词典来完成医学实体归一。</p>
+            <p>本文将医学实体归一任务定义为：给定任意实体mention，输出其对应医学实体ID，文章中称其为CUI（concept unique ID）</p>
+            <p>相较于通用领域的实体，医学领域的实体归一要同时考虑三点：</p>
+            <ul>
+                <li>字面相似度：根据语言形态学，一般情况下字面相似的两个实体更有可能指向同一实体；</li>
+                <li>语义相似度：存在少许形态相似但语义不同、形态不同但语义等价的特殊情况；</li>
+                <li>实体类型：不同实体类型下，两个词的相似情况也不同；（<span class="text-red">举个例子？</span>）</li>
+            </ul>
+            <h2>摘要</h2>
+            <ol>
+                <li>特征方面，受信息检索的启发，本文采用稀疏表征向量和稠密表征向量来分别捕获形态学信息和语义学信息，然后基于二者计算实体mention和候选实体的相似度。</li>
+                <li>在语料和训练方面，基于同义词典动态地、批量地构建正负样例，然后基于交叉熵损失函数来训练模型。</li>
+            </ol>
+            <h2>方法</h2>
+            <h4>计算相似度</h4>
+            <p>假设输入实体mention为m，n为候选实体，它取自全局同义词集（所有医学实体ID的同义词集合的并集），二者相似度计算过程为：</p>
+            <p>
+                $$
+                S(m,n) = S_{dense}(m,n) + \lambda S_{sparse}(m,n) \in \Bbb{R} \tag {1}
+                $$
+            </p>
+            <p>
+                $$
+                S_{sparse}(m,n) = f(e_m^s, e_n^s) \in \Bbb{R} \tag {2}
+                $$
+            </p>
+            <p>
+                $$
+                S_{dense}(m,n) = f(e_m^d, e_n^d) \in \Bbb{R} \tag {3}
+                $$
+            </p>
+            <p>公式（1）表示整体的相似度计算，第一部分是稠密表征的相似度分数，第二部分是稀疏表征的相似度分数，并配有一个权重系数，这个稀疏通过学习得到；</p>
+            <p>公式（2）表示稀疏表征的相似度计算，分别生成两个词的tfidf向量，然后计算二者的点积；</p>
+            <p>公式（3）表示稠密表征的相似度计算，分别将两个词（格式上都是字符串）输入到bert后取[CLS]处的语义向量，然后计算二者内积；</p>
+            <h4>动态生成候选集</h4>
+            <p>根据上述相似度计算方法，对于输入实体mention m，每次设置$k$个候选实体，通过稠密表征选择的候选词的占比为$\alpha$，通过稀疏表征选择的候选词的个数占比为$1-\alpha$；具体流程为：先基于稀疏表征相似度计算所有词的相似度分数，选择最高的$k - \lfloor \alpha k \rfloor$个词；然后基于稠密表征相似度排在前面的词，将候选集补齐成$k$个不重复的候选词。由于tfidf向量是静态的，所以通过稀疏表征选择的词每次都一样；但是稠密表征选择的词每次都不同，它会随着模型的训练进度发生变化。
+                训练时，首先对$k$个候选词的预测进行softmax处理，然后将所有同义词的概率累加得到$p$，损失值即为$-log p$；
+                预测时，直接根据$S(m,n)$选择最高的词即可。</p>
+            <h4>超参数设置</h4>
+            <ul>
+                <li>tfidf使用character-level的unigram和bigram</li>
+                <li>k=20</li>
+                <li>$\alpha$=0.5</li>
+                <li>learning rate = 1e-5</li>
+                <li>batch size = 16</li>
+                <li>$\lambda \in [2, 4]$</li>
+                <li>train epochs = 10, 5</li>
+            </ul>
+        </div>
+        <div class="footer">
+            <hr>
+            <p class="text-center">2020-2022@Beijing</p> 
+        </div>
+    </div>
+    <!-- jQuery (Bootstrap 的所有 JavaScript 插件都依赖 jQuery，所以必须放在前边) -->
+    <script src="https://fastly.jsdelivr.net/npm/jquery@1.12.4/dist/jquery.min.js"
+        integrity="sha384-nvAa0+6Qg9clwYCGGPpDQLVpLNn0fRaROjHqs13t4Ggj3Ez50XnGQqc/r8MhnRDZ"
+        crossorigin="anonymous"></script>
+    <!-- 加载 Bootstrap 的所有 JavaScript 插件。你也可以根据需要只加载单个插件。 -->
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"
+        integrity="sha384-aJ21OjlMXNL5UyIl/XNwTMqvzeRMZH2w8c5cRVpzpU8Y5bApTppSuUkhZXN0VxHd"
+        crossorigin="anonymous"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            renderMathInElement(document.body, {
+                // customised options
+                // • auto-render specific keys, e.g.:
+                delimiters: [
+                    { left: '$$', right: '$$', display: true },
+                    { left: '$', right: '$', display: false },
+                    { left: '\\(', right: '\\)', display: false },
+                    { left: '\\[', right: '\\]', display: true }
+                ],
+                // • rendering keys, e.g.:
+                throwOnError: false
+            });
+        });
+    </script>
+</body>
+
+</html>

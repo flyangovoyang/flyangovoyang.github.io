@@ -1,0 +1,216 @@
+<!doctype html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- 上述3个meta标签*必须*放在最前面，任何其他内容都*必须*跟随其后！ -->
+    <title>Blog</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css"
+        integrity="sha384-HSMxcRTRxnN+Bdg0JdbxYKrThecOKuH5zCYotlSAcp1+c8xmyTe9GYg1l9a69psu" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.15.1/dist/katex.min.css"
+        integrity="sha384-R4558gYOUz8mP9YWpZJjofhk+zx0AS11p36HnD2ZKj/6JR5z27gSSULCNHIRReVs" crossorigin="anonymous">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.15.1/dist/katex.min.js"
+        integrity="sha384-z1fJDqw8ZApjGO3/unPWUPsIymfsJmyrDVWC8Tv/a1HeOtGmkwNd/7xUS0Xcnvsx"
+        crossorigin="anonymous"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.15.1/dist/contrib/auto-render.min.js"
+        integrity="sha384-+XBljXPPiv+OzfbB3cVmLHf4hdUFHlWNZN5spNQ7rmHTXpd7WvJum6fIACpNNfIR"
+        crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="../css/base.css">
+    <link rel="stylesheet" href="../css/blog.css">
+    <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <p class="title">
+                <a class="undecorated-link" href="../index.html">MATRIX</a>
+                <a class="undecorated-link left-margin right" href="../projects.html">Projects</a>
+                <a class="undecorated-link left-margin right" href="../blogs.html">Blog</a>
+                <a class="undecorated-link left-margin right" href="../about.html">About</a>
+            </p>
+            <h3 class="text-center">PyTorch模型转TorchScript</h3>
+            <p class="text-center">
+                <span class="glyphicon glyphicon-calendar"></span> <span>May 6 2022</span>
+                <span class="glyphicon glyphicon-book left-margin"></span> <span><a href="../uncategories.html">未分类</a></span>
+            </p>
+        </div>
+        <div class="content">
+            <h1>简介</h1>
+            <p>TorchScript是PyTorch模型的中间表示形式，可以在高性能环境（如C++）中运行。简单地讲，TorchScript提供工具来捕获模型的定义，即便PyTorch具备灵活和动态的特性。</p>
+            <p>TorchScript的第一个工具为tracing.</p>
+            <h3>Tracing Modules</h3>
+            <pre>import torch
+
+
+# 定义模型
+class MyCell(torch.nn.Module):
+    def __init__(self):
+        super(MyCell, self).__init__()
+        self.linear = torch.nn.Linear(4, 4)
+
+    def forward(self, x, h):
+        new_h = torch.tanh(self.linear(x) + h)
+        return new_h, new_h
+
+
+# 生成TorchScript
+traced_cell = torch.jit.trace(my_cell, (x, h))
+print(traced_cell)</pre>
+            <p>上述代码调用了torch.jit.trace，并传入Module，还传入了输入样例。它通过调用Module生成torch.jit.ScriptModule的实例，该实例使用了中间形式（Intermediate Representation, IR）来记录模型定义，也就是深度学习中的图，可以通过traced_cell.graph来查看这个计算图，或更推荐traced_cell.code来查看代码。</p>
+            <h4>为什么要转成IR中间形式？</h4>
+            <ul>
+                <li>TrochScript代码可以在自己的解释器中被调用，这个解释器是一个带约束的Python解释器，它不需要获取全局解释器锁（Global Interpreter Lock），因此一个实例可以同时处理多个请求；</li>
+                <li>这种格式允许将整个模型保存至磁盘，然后在另一个环境中加载，例如在非Python语言的服务器中；</li>
+                <li>TorchScript提供的形式可以做代码编译优化，从而实现更高效的运行；</li>
+                <li>TorchScript allows us to interface with many backend/device runtimes that require a broader view of the program than individual operators.</li>
+            </ul>
+            <p>调用traced_cell会得到和Python module一样的结果：</p>
+            <pre>print(my_cell(x, h))
+print(traced_cell(x, h))</pre>
+            <h4>Tracing的局限</h4>
+            <p>给模型加入控制流：</p>
+            <pre># 给模型增加控制流
+class MyDecisionGate(torch.nn.Module):
+    def forward(self, x):
+        if x.sum() > 0:
+            return x
+        else:
+            return -x
+            
+class MyCell(torch.nn.Module):
+    def __init__(self, dg):
+        super(MyCell, self).__init__()
+        self.dg = dg
+        self.linear = torch.nn.Linear(4, 4)
+
+    def forward(self, x, h):
+        new_h = torch.tanh(self.dg(self.linear(x)) + h)
+        return new_h, new_h
+        
+        
+my_cell = MyCell(MyDecisionGate())
+traced_cell = torch.jit.trace(my_cell, (x, h))
+print(traced_cell.dg.code)
+print(traced_cell.code)</pre>
+            <p>此时：</p>
+            <pre>def forward(self,
+    argument_1: Tensor) -> Tensor:
+    return torch.neg(argument_1)
+
+def forward(self,
+    x: Tensor,
+    h: Tensor) -> Tuple[Tensor, Tensor]:
+    dg = self.dg
+    linear = self.linear
+    _0 = torch.add((dg).forward((linear).forward(x, ), ), h)
+    _1 = torch.tanh(_0)
+    return (_1, _1)</pre>
+            <p>此时，Tracing通过调用传入的输入样例和模型，记录运行过程中的所有操作，并根据所执行的计算构建一个ScriptModule，如果模型存在复杂的控制流（如分支、循环），未执行的计算代码会被Tracing遗漏。为此，PyTorch提供另一个工具——script编译器来解决这个问题。</p>
+            <h3>Script转化模型</h3>
+            <p>Script编译器直接分析Python源码来生成TorchScript.</p>
+            <pre>scripted_cell = torch.jit.script(my_cell)
+print(scripted_gate.code)
+print(scripted_cell.code)</pre>
+            <p>它可以将控制流所有代码都追踪到。</p>
+            <pre>def forward(self,
+    x: Tensor) -> Tensor:
+    if bool(torch.gt(torch.sum(x), 0)):
+    _0 = x
+    else:
+    _0 = torch.neg(x)
+    return _0
+
+def forward(self,
+    x: Tensor,
+    h: Tensor) -> Tuple[Tensor, Tensor]:
+    dg = self.dg
+    linear = self.linear
+    _0 = torch.add((dg).forward((linear).forward(x, ), ), h)
+    new_h = torch.tanh(_0)
+    return (new_h, new_h)</pre>
+            <p>虽然Script可以捕捉Tracing遗漏的控制流代码，但这并不代表直接一味使用Script就够了。如果存在一些Python常量和输入数据之间有关联，而模型又会基于这些Python常量来决定计算图中的控制流，那么这些常量不应被写进TorchScript.</p>
+            <blockquote>module has many architectural decisions that are made based on constant Python values that we would like to not appear in TorchScript.</blockquote>
+            <h3>Tracing和Script的混用</h3>
+            <p>解决办法：既然>0这些常量计算不能出现在torchScript中，那就用tracing嵌套script或者script嵌套tracing即可。</p>
+            <pre># 在上述模型MyRNNLoop外面再套一层模型
+class WrapRNN(torch.nn.Module):
+    def __init__(self):
+        super(WrapRNN, self).__init__()
+        self.loop = torch.jit.script(MyRNNLoop())
+
+    def forward(self, xs):
+        y, h = self.loop(xs)
+        return torch.relu(y)
+
+traced = torch.jit.trace(WrapRNN(), (torch.rand(10, 3, 4)))
+print(traced.code)</pre>
+            <p>这样，前向计算，就看不到了</p>
+            <pre>def forward(self,
+    xs: Tensor) -> Tensor:
+    loop = self.loop
+    _0, h, = (loop).forward(xs, )
+    return torch.relu(h)</pre>
+            <h3>模型保存和加载</h3>
+            <pre>traced.save('wrapped_rnn.pt')
+loaded = torch.jit.load('wrapped_rnn.pt')
+print(loaded)
+print(loaded.code)</pre>
+            <p>运行结果：</p>
+            <pre>RecursiveScriptModule(
+original_name=WrapRNN
+(loop): RecursiveScriptModule(
+    original_name=MyRNNLoop
+    (cell): RecursiveScriptModule(
+    original_name=MyCell
+    (dg): RecursiveScriptModule(original_name=MyDecisionGate)
+    (linear): RecursiveScriptModule(original_name=Linear)
+    )
+)
+)
+def forward(self,
+    xs: Tensor) -> Tensor:
+    loop = self.loop
+    _0, h, = (loop).forward(xs, )
+    return torch.relu(h)</pre>
+        </div>
+        <div class="footer">
+            <hr>
+            <p class="text-center">2020-2022@Beijing</p> 
+            <p>
+                <span id="busuanzi_container_site_uv">
+                    <span id="busuanzi_value_site_uv"></span>visitors|
+                    <span id="busuanzi_value_site_pv"></span>visits
+                </span>
+            </p>
+        </div>
+    </div>
+    <!-- jQuery (Bootstrap 的所有 JavaScript 插件都依赖 jQuery，所以必须放在前边) -->
+    <script src="https://fastly.jsdelivr.net/npm/jquery@1.12.4/dist/jquery.min.js"
+        integrity="sha384-nvAa0+6Qg9clwYCGGPpDQLVpLNn0fRaROjHqs13t4Ggj3Ez50XnGQqc/r8MhnRDZ"
+        crossorigin="anonymous"></script>
+    <!-- 加载 Bootstrap 的所有 JavaScript 插件。你也可以根据需要只加载单个插件。 -->
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"
+        integrity="sha384-aJ21OjlMXNL5UyIl/XNwTMqvzeRMZH2w8c5cRVpzpU8Y5bApTppSuUkhZXN0VxHd"
+        crossorigin="anonymous"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            renderMathInElement(document.body, {
+                // customised options
+                // • auto-render specific keys, e.g.:
+                delimiters: [
+                    { left: '$$', right: '$$', display: true },
+                    { left: '$', right: '$', display: false },
+                    { left: '\\(', right: '\\)', display: false },
+                    { left: '\\[', right: '\\]', display: true }
+                ],
+                // • rendering keys, e.g.:
+                throwOnError: false
+            });
+        });
+    </script>
+</body>
+
+</html>

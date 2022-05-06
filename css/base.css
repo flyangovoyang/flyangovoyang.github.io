@@ -1,0 +1,77 @@
+body{
+    /* background-color: #212121; */
+    /* color: #dadada; */
+
+    background-color: #E1E0C7;
+    font-family: -apple-system,BlinkMacSystemFont,segoe ui,Roboto,Oxygen-Sans,Ubuntu,Cantarell,helvetica neue,Helvetica,pingfang sc,STXihei,华文细黑,microsoft yahei,微软雅黑,SimSun,宋体,Heiti,黑体,sans-serif;
+}
+
+
+.container{
+        background-color: #F0EFE2;
+    
+}
+
+h1, h2, h3, h4, h5, h6, a:link, a:visited{
+    color: #65645F;
+}
+
+hr{
+    border-color: #65645F;
+}
+
+
+.header{
+    margin-top: 20px
+}
+
+.title{
+    font-size: large;
+    font-weight: bold;
+}
+
+pre, blockquote {
+    /* border-left: solid #65645F 5px; */
+    background-color: #E1E0C7;
+    font-size: 12px;
+}
+
+
+/* a:link,a:visited{color: #dadada;} */
+
+.right{
+    float: right;
+}
+
+.left-margin{
+    margin-left: 20px;
+}
+
+.footer{
+    max-width: calc(var(--main-width) + var(--gap) * 2);
+    margin: auto;
+    padding: calc((var(--footer-height) - var(--gap))/2)var(--gap);
+    text-align: center;
+    line-height: 24px;
+}
+
+.blog-list-year{
+    font-size: 2.4rem;
+    line-height: 3.6rem;
+}
+
+.blog-list-date{
+    margin-right: 20px;
+    font-size: 1.8rem;
+    font-weight: 400;
+    line-height: 1.8em;
+}
+.blog-list-title{
+    font-size: 1.8rem;
+    flex: 2;
+    font-weight: 700;
+}
+
+.text-red{
+    color:lightcoral
+}

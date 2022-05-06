@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- 上述3个meta标签*必须*放在最前面，任何其他内容都*必须*跟随其后！ -->
+    <title>Blogs</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css"
+        integrity="sha384-HSMxcRTRxnN+Bdg0JdbxYKrThecOKuH5zCYotlSAcp1+c8xmyTe9GYg1l9a69psu" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.15.1/dist/katex.min.css"
+        integrity="sha384-R4558gYOUz8mP9YWpZJjofhk+zx0AS11p36HnD2ZKj/6JR5z27gSSULCNHIRReVs" crossorigin="anonymous">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.15.1/dist/katex.min.js"
+        integrity="sha384-z1fJDqw8ZApjGO3/unPWUPsIymfsJmyrDVWC8Tv/a1HeOtGmkwNd/7xUS0Xcnvsx"
+        crossorigin="anonymous"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.15.1/dist/contrib/auto-render.min.js"
+        integrity="sha384-+XBljXPPiv+OzfbB3cVmLHf4hdUFHlWNZN5spNQ7rmHTXpd7WvJum6fIACpNNfIR"
+        crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="css/base.css">
+    <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <p class="title">
+                <a class="undecorated-link" href="index.html">MATRIX</a>
+                <a class="undecorated-link left-margin right" href="projects.html">Projects</a>
+                <a class="undecorated-link left-margin right" href="blogs.html">Blog</a>
+                <a class="undecorated-link left-margin right" href="about.html">About</a>
+            </p>
+            <h1 class="text-center">Blog List</h1>
+        </div>
+        <div class="content">
+            <p class="blog-list-year">2022</p>
+            <ul>
+                <li>
+                    <span class="blog-list-date">May 6</span>&nbsp;
+                    <span class="blog-list-title"><a href="blogs/globalpointer.html">GlobalPointer: 超越CRF的NER解码方法</a></span>
+                </li>
+                <li>
+                    <span class="blog-list-date">May 6</span>&nbsp;
+                    <span class="blog-list-title"><a href="blogs/torchscript_deployment.html">模型部署：PyTorch模型导出TorchScript格式</a></span>
+                </li>
+                <li>
+                    <span class="blog-list-date">May 6</span>&nbsp;
+                    <span class="blog-list-title"><a href="blogs/bookmarks.html">常用的外链</a></span>
+                </li>
+                <li>
+                    <span class="blog-list-date">May 5</span>&nbsp;
+                    <span class="blog-list-title"><a href="blogs/biosyn.html">ACL2020 | BioSyn: Biomedical Entity Normalizing by Synonyms and PTMs</a></span>
+                </li>
+            </ul>
+        </div>
+        <div class="footer">
+            <p class="text-center" style="margin-top: 25%;">2020-2022@Beijing</p> 
+            <p>
+                <span id="busuanzi_container_site_uv">
+                    <span id="busuanzi_value_site_uv"></span>visitors|
+                    <span id="busuanzi_value_site_pv"></span>visits
+                </span>
+            </p>
+        </div>
+    </div>
+    <!-- jQuery (Bootstrap 的所有 JavaScript 插件都依赖 jQuery，所以必须放在前边) -->
+    <script src="https://fastly.jsdelivr.net/npm/jquery@1.12.4/dist/jquery.min.js"
+        integrity="sha384-nvAa0+6Qg9clwYCGGPpDQLVpLNn0fRaROjHqs13t4Ggj3Ez50XnGQqc/r8MhnRDZ"
+        crossorigin="anonymous"></script>
+    <!-- 加载 Bootstrap 的所有 JavaScript 插件。你也可以根据需要只加载单个插件。 -->
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"
+        integrity="sha384-aJ21OjlMXNL5UyIl/XNwTMqvzeRMZH2w8c5cRVpzpU8Y5bApTppSuUkhZXN0VxHd"
+        crossorigin="anonymous"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            renderMathInElement(document.body, {
+                // customised options
+                // • auto-render specific keys, e.g.:
+                delimiters: [
+                    { left: '$$', right: '$$', display: true },
+                    { left: '$', right: '$', display: false },
+                    { left: '\\(', right: '\\)', display: false },
+                    { left: '\\[', right: '\\]', display: true }
+                ],
+                // • rendering keys, e.g.:
+                throwOnError: false
+            });
+        });
+    </script>
+</body>
+
+</html>
