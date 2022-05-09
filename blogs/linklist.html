@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- 上述3个meta标签*必须*放在最前面，任何其他内容都*必须*跟随其后！ -->
+    <title>Blog</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css"
+        integrity="sha384-HSMxcRTRxnN+Bdg0JdbxYKrThecOKuH5zCYotlSAcp1+c8xmyTe9GYg1l9a69psu" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.15.1/dist/katex.min.css"
+        integrity="sha384-R4558gYOUz8mP9YWpZJjofhk+zx0AS11p36HnD2ZKj/6JR5z27gSSULCNHIRReVs" crossorigin="anonymous">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.15.1/dist/katex.min.js"
+        integrity="sha384-z1fJDqw8ZApjGO3/unPWUPsIymfsJmyrDVWC8Tv/a1HeOtGmkwNd/7xUS0Xcnvsx"
+        crossorigin="anonymous"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.15.1/dist/contrib/auto-render.min.js"
+        integrity="sha384-+XBljXPPiv+OzfbB3cVmLHf4hdUFHlWNZN5spNQ7rmHTXpd7WvJum6fIACpNNfIR"
+        crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="../css/base.css">
+    <link rel="stylesheet" href="../css/blog.css">
+    <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <p class="title">
+                <a class="undecorated-link" href="../index.html">HOME</a>
+                <a class="undecorated-link left-margin right" href="../projects.html">Projects</a>
+                <a class="undecorated-link left-margin right" href="../blogs.html">Blog</a>
+                <a class="undecorated-link left-margin right" href="../about.html">About</a>
+            </p>
+            <h1 class="text-center">链表算法</h1>
+            <p class="text-center">
+                <span class="glyphicon glyphicon-calendar"></span> <span>May 9 2022</span>
+                <span class="glyphicon glyphicon-book left-margin"></span> <span><a href="../uncategories.html">未分类</a></span>
+            </p>
+        </div>
+        <div class="content">
+            <h2>前言</h2>
+            <p>本文总结链表相关的算法，在此之前，假设读者已经掌握链表的基础概念，知道链表和数组对比各自优缺点，知道常见三种链表（单链表、双链表和循环链表）的创建、结点插入和删除、合并。</p>
+            <h2>问题</h2>
+            <h3>1.求单链表倒数第K个节点</h3>
+            <p>比较简单，创建两个指针（快慢指针），慢指针指向第一个结点，快指针指向第k个结点，然后二者同时向尾部移动。当快指针到达单链表尾部时，慢指针所指的结点就是倒数第k个结点。</p>
+            <h3>2. 判断单链表是否有环</h3>
+            <p>同样可以借助快慢指针，两个指针都从第一个结点出发，慢指针每次移动一个结点，快指针每次移动两个结点，如果单链表有环，则在快指针到达尾部之前，快慢指针一定会相遇。</p>
+            <h3>3. 单链表的环入口</h3>
+            <blockquote>
+                <hr>
+                <p>输入：头结点head</p>
+                <p>输出：环入口结点</p>
+                <hr>
+                <ol>
+                    <li>创建快、慢两个指针：slow=head, fast=head</li>
+                    <li>重复以下步骤，直至快慢指针重合：</li>
+                    <ul>
+                        <li>快指针移动2步，慢指针移动1步</li>
+                    </ul>
+                    <li>重置快指针：fast = head</li>
+                    <li>重复以下步骤，直至快慢指针再次重合：</li>
+                    <ul>
+                        <li>快指针移动1步，慢指针移动1步</li>
+                    </ul>
+                    <li>返回fast</li>
+                </ol>
+                <hr>
+            </blockquote>
+            <p>解释：</p>
+            <p>假设起点到环入口距离为$a$，环入口到首次相遇点的距离为$b$。由于慢指针速度为1，快指针速度为2，当二者相遇时，慢指针行走距离$s = a+b$，而快指针的行走距离为$2s=a+b+nc$，其中$c$表示环的周长，$n$为非负整数。此时有：</p>
+            <p>
+                $$
+                \begin{cases}
+                b &lt c \\
+                a + b = s = nc
+                \end{cases}$$
+            </p>
+            <p>于是不难得到$a = (n-1)c + c - b$，而$c-b$刚好是从环入口到第一次相遇点的距离。</p>
+            <p>此时如果我们让快指针回到链表起点走a步，快指针刚好抵达环入口；让慢指针在第一次相遇点开始走a步也刚好抵达环入口。虽然我们不知道a的具体数值，但是我们知道，如果二者相遇，那么一定走了a步，且相遇点就是环入口。</p>
+            <h3>4. 反转单链表</h3>
+            <p>比较经典，也比较简单。这里假设头结点存储元素！</p>
+            <blockquote>
+                <hr>
+                <p>输入：头结点head</p>
+                <p>输出：头结点head</p>
+                <hr>
+                <ol>
+                    <li>如果head为空，跳转至第4步，否则执行第2步</li>
+                    <li>设置快慢指针：slow = head, fast = slow.next</li>
+                    <li>重复以下步骤，直到快指针指向空：</li>
+                    <ul>
+                        <li>slow.next = fast.next</li>
+                        <li>fast.next = head</li>
+                        <li>head = fast</li>
+                        <li>fast = slow.next</li>
+                    </ul>
+                    <li>输出head</li>
+                </ol>
+                <hr>
+            </blockquote>
+
+
+        </div>
+        <div class="footer">
+            <hr>
+            <p class="text-center">2020-2022@Beijing</p> 
+            <p>
+                <span id="busuanzi_container_site_uv">
+                    <span id="busuanzi_value_site_uv"></span> visitors |
+                    <span id="busuanzi_value_site_pv"></span> visits
+                </span>
+            </p>
+        </div>
+    </div>
+    <!-- jQuery (Bootstrap 的所有 JavaScript 插件都依赖 jQuery，所以必须放在前边) -->
+    <script src="https://fastly.jsdelivr.net/npm/jquery@1.12.4/dist/jquery.min.js"
+        integrity="sha384-nvAa0+6Qg9clwYCGGPpDQLVpLNn0fRaROjHqs13t4Ggj3Ez50XnGQqc/r8MhnRDZ"
+        crossorigin="anonymous"></script>
+    <!-- 加载 Bootstrap 的所有 JavaScript 插件。你也可以根据需要只加载单个插件。 -->
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"
+        integrity="sha384-aJ21OjlMXNL5UyIl/XNwTMqvzeRMZH2w8c5cRVpzpU8Y5bApTppSuUkhZXN0VxHd"
+        crossorigin="anonymous"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            renderMathInElement(document.body, {
+                // customised options
+                // • auto-render specific keys, e.g.:
+                delimiters: [
+                    { left: '$$', right: '$$', display: true },
+                    { left: '$', right: '$', display: false },
+                    { left: '\\(', right: '\\)', display: false },
+                    { left: '\\[', right: '\\]', display: true }
+                ],
+                // • rendering keys, e.g.:
+                throwOnError: false
+            });
+        });
+    </script>
+</body>
+
+</html>
