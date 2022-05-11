@@ -1,0 +1,251 @@
+<!doctype html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- 上述3个meta标签*必须*放在最前面，任何其他内容都*必须*跟随其后！ -->
+    <title>YOUNGNLP</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css"
+        integrity="sha384-HSMxcRTRxnN+Bdg0JdbxYKrThecOKuH5zCYotlSAcp1+c8xmyTe9GYg1l9a69psu" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.15.1/dist/katex.min.css"
+        integrity="sha384-R4558gYOUz8mP9YWpZJjofhk+zx0AS11p36HnD2ZKj/6JR5z27gSSULCNHIRReVs" crossorigin="anonymous">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.15.1/dist/katex.min.js"
+        integrity="sha384-z1fJDqw8ZApjGO3/unPWUPsIymfsJmyrDVWC8Tv/a1HeOtGmkwNd/7xUS0Xcnvsx"
+        crossorigin="anonymous"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.15.1/dist/contrib/auto-render.min.js"
+        integrity="sha384-+XBljXPPiv+OzfbB3cVmLHf4hdUFHlWNZN5spNQ7rmHTXpd7WvJum6fIACpNNfIR"
+        crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="../css/base.css">
+    <link rel="stylesheet" href="../css/blog.css">
+    <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <style>
+        .bold {
+            font-weight: bold
+        }
+
+        .red {
+            color: red
+        }
+
+        blockquote {
+            font-size: inherit;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <p class="title">
+                <a href="../index.html">YOUNGNLP</a>
+                <a class="left-margin right" href="../faq.html">关于</a>
+                <a class="left-margin right" href="../projects.html">随笔</a>
+                <a class="left-margin right" href="../blogs.html">博客</a>
+            </p>
+            <h1 class="text-center">如何理解条件随机场CRF</h1>
+            <p class="text-center">
+                <span class="glyphicon glyphicon-calendar"></span> <span>Jan 04 2021</span>
+                <span class="glyphicon glyphicon-book left-margin"></span> <span><a
+                        href="../uncategories.html">未分类</a></span>
+            </p>
+        </div>
+        <div class="content">
+            <p>CRF是概率图模型中一个非常经典的概率无向图模型，常用在命名实体识别等序列标注任务上。</p>
+            <h3 class="text-primary">模型介绍</h3>
+            <p>给定给一个序列$x$，计算标签序列$y$的概率$P(y|x)$.</p>
+            <p>概率无向图模型又称为马尔可夫随机场，它要求$P(Y)$必须满足<span
+                    class="red bold">成对、局部、全局马尔可夫性</span>，然后根据Hammersley-Clifford定理，概率无向图模型的联合概率分布$P(Y)$可以分解成规范化的<span
+                    class="red bold">最大团</span>的势函数乘积（这个定理暂时不深究）。</p>
+            <p>条件随机场在此基础上加了一个随机变量X进来，于是$P(Y)$变成$P(Y_v|X, Y_w, w {=}\mathllap{/\,} v) = P(Y_v|X, Y_v, w \sim
+                v)$，其中$\sim$表示相邻。此时，Y仍旧满足马尔可夫随机场。</p>
+            <p>线性链条件随机场在此基础上，要求Y具有链式结构，但是对X没有要求，可用下图来表示：</p>
+            <p class="text-center"><img src="../images/crf.png" /></p>
+            <p>这里的定义是：</p>
+            <p>
+                $$
+                P(Y_i|X, Y_1, ..., Y_{i-1}, Y_{i+1}, ..., Y_n) = P(Y_i|X, Y_{i-1}, Y_{i+1})
+                $$
+            </p>
+            <p>以上两张图都是线性链条件随机场，线性链条件随机场的最大团就是相邻两个结点的集合。而通过对这两张图进行内部比较，可以发现左边的图更为特殊，因为X和Y具有相同的结构。现实中，比如对于NER问题，对一个文本序列进行序列标注，都一般假设X和Y具有相同结构，满足左边的那张图。
+            </p>
+            <p>于是我们就可以定义CRF中的<span class="red bold">状态转移特征函数</span>$t_k(y_{i-1}, y_i, x, i)$和<span
+                    class="red bold">状态特征函数</span>$s_l(y_i, x, i)$，它们分别描述了状态转移概率和发射概率。</p>
+            <blockquote class="text-muted">
+                <p>特征函数的取值只有0或者1，比如一个具体的特征函数：</p>
+                <p>
+                    $$
+                    t1(y_{i-1}=1, y_i=2, x, i) = 1, \quad i=2, 3
+                    $$
+                </p>
+                <p>这个特征函数其实是可以拆开的，虽然只阐述了在2和3这两个位置上取值为1的条件，但是可以默认其余位置上都为0。</p>
+            </blockquote>
+            <p>但是光有特征函数是不够的，每个特征函数还都对应一个权重。于是，整个参数化的线性链条件随机场就可以表示为：</p>
+            <p>
+                $$
+                P(y|x) = \frac{1}{Z(x)}exp(\sum_{i,k}\lambda_k t_k(y_{i-1}, y_i, x, i) + \sum_{i, l}\mu_l s_l(y_i, x,
+                i))
+                $$
+            </p>
+            <p>Z(x)是归一化因子，它作用在全局上，实现全局归一化，这恰恰就是CRF相比于MEMM的改进之处。</p>
+            <p>这里有一个细节值得注意：$i$和$k/l$分别是位置编号和特征函数编号，它们是分开的！换句话说，<span
+                    class="bold">每个位置上都存在多种特征函数，而一个特征函数又是作用在整个序列y上的。</span></p>
+            <p>基于此，对CRF进行简化表示：</p>
+            <p>
+                $$
+                P(y|x) = \frac{1}{Z(x)}exp(\sum_{k=1}^K w_kf_k(y, x))
+                $$
+            </p>
+            <p>其中</p>
+            <p>
+                $$
+                f_k(y, x) = \sum_{i=1}^n f_k(y_{i-1}, y_i, x, i)
+                $$
+            </p>
+            <p>是两种特征函数的统一形式。</p>
+            <p>可以看到，$f_k(y, x)$是单个特征函数在整个序列上的取值，$P(y|x)$是所有特征函数与权重的加权和。</p>
+            <p>这里的特征函数有K个，是两种特征函数的数量和，位置则是从1到n。</p>
+            <p>接下来，尝试将其转化成向量形式：</p>
+            <p>
+                $$
+                P_w(y|x) = \frac{exp(w \cdot F(y, x))}{Z_w(x)}
+                $$
+            </p>
+            <p>其中</p>
+            <p>
+                $$
+                w = (w_1, w_2, ..., w_K)^T
+                $$
+                $$
+                F(y, x) = (f_1(y, x), f_2(y, x), ..., f_K(y, x))^T
+                $$
+            </p>
+            <p>这里的$\cdot$表示内积。</p>
+            <p>简化到这一步还没完，我们还可以将其继续简化到矩阵表示形式。</p>
+            <p>假设标签的数量为m，定义一个$m$阶矩阵随机变量：</p>
+            <p>
+                $$
+                M_i(x) = [M_i(y_{i-1}, y_i, x)]
+                $$
+            </p>
+            <p>$M_i(x)$对应在位置$i$处的矩阵，矩阵元素为$M_i(y_{i-1}, y_i, x)$，可展开如下：</p>
+            <p>
+                $$
+                M_i(x) = [M_i(y_{i-1}, y_i, x)] =
+                \begin{bmatrix}
+                M_i(y_{i-1}=c_1, y_i=c_1|x) & M_i(y_{i-1}=c_1, y_i=c_2|x) & \cdots & M_i(y_{i-1}=c_1, y_i=c_m|x)\\
+                M_i(y_{i-1}=c_2, y_i=c_1|x) & M_i(y_{i-1}=c_2, y_i=c_2|x) & \cdots & M_i(y_{i-1}=c_2, y_i=c_m|x)\\
+                \vdots & \vdots & \ddots & \vdots\\
+                M_i(y_{i-1}=c_m, y_i=c_1|x) & M_i(y_{i-1}=c_m, y_i=c_2|x) & \cdots & M_i(y_{i-1}=c_m, y_i=c_m|x)
+                \end{bmatrix}
+                $$
+            </p>
+            <p>也就是在位置$i$处定义了一个$m*m$的矩阵。</p>
+            <p>其中</p>
+            <p>
+                $$
+                M_i(y_{i-1}, y_i, x) = exp(W_i(y_{i-1}, y_i|x))\\
+                W_i(y_{i-1}, y_i|x) = \sum_{k=1}^K w_kf_k(y_{i-1}, y_i, x, i)
+                $$
+            </p>
+            <p>可以看到$M_i(y_{i-1}, y_i,
+                x)$是一个位置上所有的特征函数的取值的加权和。这里给每个概率加上了一个$exp$，是为了方便计算，加上$exp$之后路径上每个概率连乘，不仅在指数上可以得到累加和，还方便计算softmax概率，后面还会提到。
+            </p>
+            <p>有了这个$M_i(x)$基本得到了$i$位置上所有可能的状态转移和发射。</p>
+            <p>那么对于整个序列Y的概率：</p>
+            <p>
+                $$
+                P_w(y|x) = \frac{1}{Z_w(x)}\prod_{i=1}^{n+1} M_i(y_{i-1}, y_i|x)
+                $$
+            </p>
+            <p>假设标签序列$y = \{y_1, y_2, ..., y_n\}$，那么整个序列的概率的分子就是：</p>
+            <p>
+                $$
+                exp(W_1(y_{0}, y_1|x)) \cdot exp(W_2(y_{1}, y_2|x)) \cdots exp(W_n(y_{n}, y_{n+1}|x))
+                $$
+            </p>
+            <p>把$W_i(y_{i-1}, y_i|x)$简记为$a(i)$，得到：</p>
+            <p>
+                $$
+                exp(a(1)+a(2)+...+a(n+1))
+                $$
+            </p>
+            <blockquote class="text-muted">因为序列是以start开始以stop结束的，所以完整的序列是$\{start, y_1, ..., y_n,
+                stop\}$，所以$W_i(y_{i-1}, y_i|x)$从$1$开始，直到$n+1$</blockquote>
+            <p>把整个路径概率和记为$l_1$，就是</p>
+            <p>
+                $$
+                exp(l_1)
+                $$
+            </p>
+            <p>分子已经是exp的形式了，那么接下来就只需要计算分母这个归一化因子了。</p>
+            <p>所有可能路径的概率和，那总共就有$n^m$种了，n是序列长度，m表示每个位置上的取值种数</p>
+            <p>
+                $$
+                exp(l_1) + exp(l_2) + \cdots + exp(l_{n^m})
+                $$
+            </p>
+            <p>二者相除，自然就可以得到路径$l_1$全局归一化的概率了：</p>
+            <p>
+                $$
+                \frac{exp(l_1)}{\sum_{i=1}^{n^m}exp(l_i)}
+                $$
+            </p>
+            <p>所以回头看看，$M_i(y_{i-1}, y_i, x)$带有一个$exp$就能自圆其说了。</p>
+            <p>到这里，基本上，整个CRF的参数就能确定了，特征函数以及他们的权重用$n+1$个$m*m$的矩阵表示了出来。</p>
+            <blockquote class="text-muted">
+                深度学习模型中的CRF层没有显式地去定义特征函数，容易让初学者疑惑，其实参数转移矩阵就暗含了每个位置上的特征函数，这就像电影《超体》的女主一样，它虽然看不见摸不着，但是它却无处不在。</blockquote>
+            <p>所以，整个CRF就学习$(n+1)*m*m$的参数就好了，最后计算的时候做一个全局归一化，就能得到任意一个路径的概率。</p>
+            <p>最后来总结下CRF模型的表示形式：</p>
+            <p>
+                $$
+                P_w(y|x) = \frac{1}{Z_w(x)}\prod_{i=1}^{n+1} M_i(y_{i-1}, y_i|x)
+                $$
+            </p>
+            <p>其中</p>
+            <p>
+                $$
+                M_i(y_{i-1}, y_i|x) = exp(\sum_{k=1}^K w_kf_k(y_{i-1}, y_i|x))
+                $$
+            </p>
+            <p>$Z_w(x)$是以start为起点，以stop为终点通过状态的所有路径的非规范化概率$\prod_{i=1}^{n+1} M_i(y_{i-1}, y_i|x)$之和。</p>
+        </div>
+        <div class="footer">
+            <hr>
+            <p class="text-center">2020-2022@北京</p>
+            <p>
+                <span id="busuanzi_container_site_uv">
+                    <span id="busuanzi_value_site_uv"></span> 访客 |
+                    <span id="busuanzi_value_site_pv"></span> 访问量
+                </span>
+            </p>
+        </div>
+    </div>
+    <!-- jQuery (Bootstrap 的所有 JavaScript 插件都依赖 jQuery，所以必须放在前边) -->
+    <script src="https://fastly.jsdelivr.net/npm/jquery@1.12.4/dist/jquery.min.js"
+        integrity="sha384-nvAa0+6Qg9clwYCGGPpDQLVpLNn0fRaROjHqs13t4Ggj3Ez50XnGQqc/r8MhnRDZ"
+        crossorigin="anonymous"></script>
+    <!-- 加载 Bootstrap 的所有 JavaScript 插件。你也可以根据需要只加载单个插件。 -->
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"
+        integrity="sha384-aJ21OjlMXNL5UyIl/XNwTMqvzeRMZH2w8c5cRVpzpU8Y5bApTppSuUkhZXN0VxHd"
+        crossorigin="anonymous"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            renderMathInElement(document.body, {
+                // customised options
+                // • auto-render specific keys, e.g.:
+                delimiters: [
+                    { left: '$$', right: '$$', display: true },
+                    { left: '$', right: '$', display: false },
+                    { left: '\\(', right: '\\)', display: false },
+                    { left: '\\[', right: '\\]', display: true }
+                ],
+                // • rendering keys, e.g.:
+                throwOnError: false
+            });
+        });
+    </script>
+</body>
+
+</html>
