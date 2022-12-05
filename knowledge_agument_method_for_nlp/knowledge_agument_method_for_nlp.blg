@@ -1,0 +1,53 @@
+This is BibTeX, Version 0.99d (TeX Live 2022)
+Capacity: max_strings=200000, hash_size=200000, hash_prime=170003
+The top-level auxiliary file: knowledge_agument_method_for_nlp.aux
+The style file: unsrt.bst
+Database file #1: knowledge_agument_method_for_nlp.bib
+Warning--can't use both volume and number fields in liu2020k
+Warning--empty journal in xiong2020pretrained
+Warning--can't use both volume and number fields in yu2022jaket
+Warning--can't use both volume and number fields in lv2020graph
+Warning--can't use both volume and number fields in liu2021kg
+Warning--can't use both volume and number fields in guan2019story
+You've used 28 entries,
+            1791 wiz_defined-function locations,
+            586 strings with 10167 characters,
+and the built_in function-call counts, 10800 in all, are:
+= -- 932
+> -- 575
+< -- 25
++ -- 201
+- -- 173
+* -- 737
+:= -- 1518
+add.period$ -- 84
+call.type$ -- 28
+change.case$ -- 28
+chr.to.int$ -- 0
+cite$ -- 34
+duplicate$ -- 517
+empty$ -- 946
+format.name$ -- 173
+if$ -- 2509
+int.to.chr$ -- 0
+int.to.str$ -- 28
+missing$ -- 28
+newline$ -- 143
+num.names$ -- 28
+pop$ -- 130
+preamble$ -- 1
+purify$ -- 0
+quote$ -- 0
+skip$ -- 393
+stack$ -- 0
+substring$ -- 838
+swap$ -- 267
+text.length$ -- 25
+text.prefix$ -- 0
+top$ -- 0
+type$ -- 0
+warning$ -- 6
+while$ -- 94
+width$ -- 30
+write$ -- 309
+(There were 6 warnings)

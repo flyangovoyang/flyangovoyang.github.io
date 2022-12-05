@@ -1,0 +1,197 @@
+\begin{thebibliography}{10}
+
+\bibitem{zhang2019ernie}
+Zhengyan Zhang, Xu~Han, Zhiyuan Liu, Xin Jiang, Maosong Sun, and Qun Liu.
+\newblock Ernie: Enhanced language representation with informative entities.
+\newblock In {\em Proceedings of the 57th Annual Meeting of the Association for
+  Computational Linguistics}, pages 1441--1451, 2019.
+
+\bibitem{peters2019knowledge}
+Matthew~E Peters, Mark Neumann, Robert Logan, Roy Schwartz, Vidur Joshi, Sameer
+  Singh, and Noah~A Smith.
+\newblock Knowledge enhanced contextual word representations.
+\newblock In {\em Proceedings of the 2019 Conference on Empirical Methods in
+  Natural Language Processing and the 9th International Joint Conference on
+  Natural Language Processing (EMNLP-IJCNLP)}, pages 43--54, 2019.
+
+\bibitem{liu2020k}
+Weijie Liu, Peng Zhou, Zhe Zhao, Zhiruo Wang, Qi~Ju, Haotang Deng, and Ping
+  Wang.
+\newblock K-bert: Enabling language representation with knowledge graph.
+\newblock In {\em Proceedings of the AAAI Conference on Artificial
+  Intelligence}, volume~34, pages 2901--2908, 2020.
+
+\bibitem{yu2020identifying}
+Wenhao Yu, Mengxia Yu, Tong Zhao, and Meng Jiang.
+\newblock Identifying referential intention with heterogeneous contexts.
+\newblock In {\em Proceedings of The Web Conference 2020}, pages 962--972,
+  2020.
+
+\bibitem{zeng2020tri}
+Qingkai Zeng, Wenhao Yu, Mengxia Yu, Tianwen Jiang, Tim Weninger, and Meng
+  Jiang.
+\newblock Tri-train: Automatic pre-fine tuning between pre-training and
+  fine-tuning for sciner.
+\newblock In {\em Findings of the Association for Computational Linguistics:
+  EMNLP 2020}, pages 4778--4787, 2020.
+
+\bibitem{sun2019ernie}
+Yu~Sun, Shuohuan Wang, Yukun Li, Shikun Feng, Xuyi Chen, Han Zhang, Xin Tian,
+  Danxiang Zhu, Hao Tian, and Hua Wu.
+\newblock Ernie: Enhanced representation through knowledge integration.
+\newblock {\em arXiv preprint arXiv:1904.09223}, 2019.
+
+\bibitem{shen2020exploiting}
+Tao Shen, Yi~Mao, Pengcheng He, Guodong Long, Adam Trischler, and Weizhu Chen.
+\newblock Exploiting structured knowledge in text via graph-guided
+  representation learning.
+\newblock In {\em Proceedings of the 2020 Conference on Empirical Methods in
+  Natural Language Processing (EMNLP)}, pages 8980--8994, 2020.
+
+\bibitem{xiong2020pretrained}
+Wenhan Xiong, Jingfei Du, William~Yang Wang, and Veselin Stoyanov.
+\newblock Pretrained encyclopedia: Weakly supervised knowledge-pretrained
+  language model.
+\newblock 2020.
+
+\bibitem{wang2021kepler}
+Xiaozhi Wang, Tianyu Gao, Zhaocheng Zhu, Zhengyan Zhang, Zhiyuan Liu, Juanzi
+  Li, and Jian Tang.
+\newblock Kepler: A unified model for knowledge embedding and pre-trained
+  language representation.
+\newblock {\em Transactions of the Association for Computational Linguistics},
+  9:176--194, 2021.
+
+\bibitem{fevry2020entities}
+Thibault F{\'e}vry, Livio~Baldini Soares, Nicholas Fitzgerald, Eunsol Choi, and
+  Tom Kwiatkowski.
+\newblock Entities as experts: Sparse memory access with entity supervision.
+\newblock In {\em Proceedings of the 2020 Conference on Empirical Methods in
+  Natural Language Processing (EMNLP)}, pages 4937--4951, 2020.
+
+\bibitem{yu2022jaket}
+Donghan Yu, Chenguang Zhu, Yiming Yang, and Michael Zeng.
+\newblock Jaket: Joint pre-training of knowledge graph and language
+  understanding.
+\newblock In {\em Proceedings of the AAAI Conference on Artificial
+  Intelligence}, volume~36, pages 11630--11638, 2022.
+
+\bibitem{yu2022dict}
+Wenhao Yu, Chenguang Zhu, Yuwei Fang, Donghan Yu, Shuohang Wang, Yichong Xu,
+  Michael Zeng, and Meng Jiang.
+\newblock Dict-bert: Enhancing language model pre-training with dictionary.
+\newblock In {\em Findings of the Association for Computational Linguistics:
+  ACL 2022}, pages 1907--1918, 2022.
+
+\bibitem{xu2021fusing}
+Yichong Xu, Chenguang Zhu, Ruochen Xu, Yang Liu, Michael Zeng, and Xuedong
+  Huang.
+\newblock Fusing context into knowledge graph for commonsense question
+  answering.
+\newblock In {\em Findings of the Association for Computational Linguistics:
+  ACL-IJCNLP 2021}, pages 1201--1207, 2021.
+
+\bibitem{ding2019cognitive}
+Ming Ding, Chang Zhou, Qibin Chen, Hongxia Yang, and Jie Tang.
+\newblock Cognitive graph for multi-hop reading comprehension at scale.
+\newblock In {\em Proceedings of the 57th Annual Meeting of the Association for
+  Computational Linguistics}, pages 2694--2703, 2019.
+
+\bibitem{lv2020graph}
+Shangwen Lv, Daya Guo, Jingjing Xu, Duyu Tang, Nan Duan, Ming Gong, Linjun
+  Shou, Daxin Jiang, Guihong Cao, and Songlin Hu.
+\newblock Graph-based reasoning over heterogeneous external knowledge for
+  commonsense question answering.
+\newblock In {\em Proceedings of the AAAI Conference on Artificial
+  Intelligence}, volume~34, pages 8449--8456, 2020.
+
+\bibitem{zhou2018commonsense}
+Hao Zhou, Tom Young, Minlie Huang, Haizhou Zhao, Jingfang Xu, and Xiaoyan Zhu.
+\newblock Commonsense knowledge aware conversation generation with graph
+  attention.
+\newblock In {\em IJCAI}, pages 4623--4629, 2018.
+
+\bibitem{zhang2020grounded}
+Houyu Zhang, Zhenghao Liu, Chenyan Xiong, and Zhiyuan Liu.
+\newblock Grounded conversation generation as guided traverses in commonsense
+  knowledge graphs.
+\newblock In {\em Proceedings of the 58th Annual Meeting of the Association for
+  Computational Linguistics}, pages 2031--2043, 2020.
+
+\bibitem{ji2020language}
+Haozhe Ji, Pei Ke, Shaohan Huang, Furu Wei, Xiaoyan Zhu, and Minlie Huang.
+\newblock Language generation with multi-hop reasoning on commonsense knowledge
+  graph.
+\newblock In {\em Proceedings of the 2020 Conference on Empirical Methods in
+  Natural Language Processing (EMNLP)}, pages 725--736, 2020.
+
+\bibitem{lewis2020retrieval}
+Patrick Lewis, Ethan Perez, Aleksandra Piktus, Fabio Petroni, Vladimir
+  Karpukhin, Naman Goyal, Heinrich K{\"u}ttler, Mike Lewis, Wen-tau Yih, Tim
+  Rockt{\"a}schel, et~al.
+\newblock Retrieval-augmented generation for knowledge-intensive nlp tasks.
+\newblock {\em Advances in Neural Information Processing Systems},
+  33:9459--9474, 2020.
+
+\bibitem{wang2021retrieval}
+Han Wang, Yang Liu, Chenguang Zhu, Linjun Shou, Ming Gong, Yichong Xu, and
+  Michael Zeng.
+\newblock Retrieval enhanced model for commonsense generation.
+\newblock In {\em Findings of the Association for Computational Linguistics:
+  ACL-IJCNLP 2021}, pages 3056--3062, 2021.
+
+\bibitem{ma2019towards}
+Kaixin Ma, Jonathan Francis, Quanyang Lu, Eric Nyberg, and Alessandro
+  Oltramari.
+\newblock Towards generalizable neuro-symbolic systems for commonsense question
+  answering.
+\newblock In {\em Proceedings of the First Workshop on Commonsense Inference in
+  Natural Language Processing}, pages 22--32, 2019.
+
+\bibitem{fan2020enhanced}
+Zhihao Fan, Yeyun Gong, Zhongyu Wei, Siyuan Wang, Yameng Huang, Jian Jiao,
+  Xuan-Jing Huang, Nan Duan, and Ruofei Zhang.
+\newblock An enhanced knowledge injection model for commonsense generation.
+\newblock In {\em Proceedings of the 28th International Conference on
+  Computational Linguistics}, pages 2014--2025, 2020.
+
+\bibitem{liu2021kg}
+Ye~Liu, Yao Wan, Lifang He, Hao Peng, and S~Yu Philip.
+\newblock Kg-bart: Knowledge graph-augmented bart for generative commonsense
+  reasoning.
+\newblock In {\em Proceedings of the AAAI Conference on Artificial
+  Intelligence}, volume~35, pages 6418--6425, 2021.
+
+\bibitem{guan2019story}
+Jian Guan, Yansen Wang, and Minlie Huang.
+\newblock Story ending generation with incremental encoding and commonsense
+  knowledge.
+\newblock In {\em Proceedings of the AAAI Conference on Artificial
+  Intelligence}, volume~33, pages 6473--6480, 2019.
+
+\bibitem{guan2020knowledge}
+Jian Guan, Fei Huang, Zhihao Zhao, Xiaoyan Zhu, and Minlie Huang.
+\newblock A knowledge-enhanced pretraining model for commonsense story
+  generation.
+\newblock {\em Transactions of the Association for Computational Linguistics},
+  8:93--108, 2020.
+
+\bibitem{yang2021survey}
+Jian Yang, Gang Xiao, Yulong Shen, Wei Jiang, Xinyu Hu, Ying Zhang, and Jinghui
+  Peng.
+\newblock A survey of knowledge enhanced pre-trained models.
+\newblock {\em arXiv preprint arXiv:2110.00269}, 2021.
+
+\bibitem{zhang2022survey}
+Zhihan Zhang, Wenhao Yu, Mengxia Yu, Zhichun Guo, and Meng Jiang.
+\newblock A survey of multi-task learning in natural language processing:
+  Regarding task relatedness and training methods.
+\newblock {\em arXiv preprint arXiv:2204.03508}, 2022.
+
+\bibitem{wei2021knowledge}
+Xiaokai Wei, Shen Wang, Dejiao Zhang, Parminder Bhatia, and Andrew Arnold.
+\newblock Knowledge enhanced pretrained language models: A compreshensive
+  survey.
+\newblock {\em arXiv preprint arXiv:2110.08455}, 2021.
+
+\end{thebibliography}

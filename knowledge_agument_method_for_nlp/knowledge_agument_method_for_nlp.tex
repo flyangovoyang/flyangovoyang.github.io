@@ -1,6 +1,7 @@
-\documentclass[12pt]{article}
+\documentclass[11pt]{article}
 \usepackage{xeCJK}
 \usepackage[colorlinks,linkcolor=green, anchorcolor=green, citecolor=green]{hyperref}
+%\usepackage{graphicx}
 
 \begin{document}
 \title{将知识融入NLP模型的方法总结}
@@ -11,9 +12,10 @@
 \end{abstract}
 
 \section{知识的定义}
-近年来，通过结合更大的模型、更好的训练策略和更多的数据，NLP的发展得到了极大的推动，如BERT、RoBERTa和GPT。这些预训练模型可以有效地从文本中学到语言模式并生成高质量的、上下文感知的表征。然而，这些模型的输入只有原文本，因而很难获取到和概念、关系、常识相关的外部世界知识。本文用“知识”表示\textbf{对模型预测目标输出很重要但是在当前模型输入中缺失的外部信息}。知识应该被融入到模型的训练和推理中，因为知识对语言表征非常重要，它是实现高阶智能不可或缺的组成部分；其次，仅仅在输入文本上进行统计学习是无法获取到知识的。
+近年来，通过结合更大的模型、更好的训练策略和更多的数据，NLP的发展得到了极大的推动，如BERT、RoBERTa和GPT。这些预训练模型可以有效地从文本中学到语言模式并生成高质量的、上下文感知的表征。然而，这些模型的输入只有原文本，因而很难获取到和概念、关系、常识相关的外部世界知识。本文用“知识”表示对模型预测目标输出很重要但是在当前模型输入中缺失的外部信息。知识应该被融入到模型的训练和推理中，因为知识对语言表征非常重要，它是实现高阶智能不可或缺的组成部分；其次，仅仅在输入文本上进行统计学习是无法获取到知识的。
 
 \section{知识增强的NLU}
+
 NLU任务的目的是在输入文本的基础上对词、短语、句子、篇章的属性做预测，比如情绪分析、命名实体识别和文本推理。从知识资源的维度可将知识增强NLU大致分为两类，一类是结构化知识（如知识图谱），另一类是非结构化知识（如文本语料）。
 
 将结构化知识融入到NLU的工作又可分为两种，一种是基于概念或者实体嵌入的显式方法~\cite{zhang2019ernie,peters2019knowledge,liu2020k,yu2020identifying,zeng2020tri}，一种是通过实体遮掩预测的隐式方法~\cite{sun2019ernie,shen2020exploiting,xiong2020pretrained,wang2021kepler}。
@@ -24,9 +26,7 @@ NLU任务的目的是在输入文本的基础上对词、短语、句子、篇�
 
 \section{知识增强的NLG}
 
-NLG的目标是从各种形式的语言或非语言数据（如文本数据、图像数据和结构化知识图谱）中生成人类语言的可理解文本。和NLU方法不同的是，NLG方法一般都采用encoder-decoder框架，在生成过程中，如果在解码下一个token时引入知识会面临很多挑战。
-
-当前将知识融入NLG模型的方法大概分为三种：
+NLG的目标是从各种形式的语言或非语言数据（如文本数据、图像数据和结构化知识图谱）中生成人类语言的可理解文本。和NLU方法不同的是，NLG方法一般都采用encoder-decoder框架，在生成过程中，如果在解码下一个token时引入知识会面临很多挑战。当前将知识融入NLG模型的方法大概分为三种：
 
 \begin{itemize}
     \item 通过模型结构融入知识：知识关联的注意力机制，知识关联的拷贝/指针机制；
@@ -65,20 +65,20 @@ NLG的目标是从各种形式的语言或非语言数据（如文本数据、�
 
 \section{代表人物}
 
-\begin{enumerate}
+\begin{itemize}
     \item Chenguang Zhu
     \item Yichong Xu
     \item Xiang Ren
     \item Bill Yuchen Lin
     \item Meng Jiang
     \item Wenhao Yu
-\end{enumerate}
+\end{itemize}
 
 % bibtex方法
 % 在bib文件中写清楚每个文献的内容
 % 在正文使用如下两行代码
 % style的取值有plain, 
 \bibliographystyle{unsrt}
-\bibliography{my}
+\bibliography{knowledge_agument_method_for_nlp}
 
 \end{document}
