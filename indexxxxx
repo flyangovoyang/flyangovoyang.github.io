@@ -32,13 +32,14 @@
 <body>
     <div class="container">
         <h1 class="text-center">flyangovoyang.github.io</h1>
-        <h3>blogs</h3>
+        <h3><a href="nlp">nlp</a></h3>
         <ul>
             <li><a href="crf.pdf">深度解读条件随机场</a></li>
             <li><a href="knowledge_agument_method_for_nlp.pdf">知识增强NLP模型的方法综述</a></li>
         </ul>
         <h3>thoughts</h3>
         <ul>
+            <li><a href="how_to_read_a_paper">how to read paper</a></li>
             <li><a href="future_direction_of_nlp">future direction of nlp</a></li>
             <li><a href="slow_it_down.html">防止抑郁</a></li>
         </ul>
