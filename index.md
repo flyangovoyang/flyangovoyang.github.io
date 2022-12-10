@@ -1,7 +1,5 @@
 # Natural Language Processing
 
-Some notes and codes of nlp are shared here based on open-source spirit. If you find any mistakes in the blogs below, write an issue to let me know, your feedback is welcomed.
-
 ### paper & model
 
 - published before 2018
@@ -20,6 +18,8 @@ Some notes and codes of nlp are shared here based on open-source spirit. If you 
 
 - word segmentation
 - named entity recognition
+- pretrained language model
+- knowledge representation learning
 
 ### dataset
 
@@ -28,13 +28,10 @@ Some notes and codes of nlp are shared here based on open-source spirit. If you 
 ### framework & training method
 
 - **pytorch**: [DDP]()
-- contrastive learning
 
 ### demo
-
-- 
 
 ### others
 
 - [The jump of thinking mode: bottom to top VS top to bottom](the-jump-of-thinking-mode-bottom-to-top-vs-top-to-bottom.md)
-- 
+- [how to read a paper](how-to-read-paper)
