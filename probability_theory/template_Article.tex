@@ -1,0 +1,38 @@
+\documentclass[11pt]{article}
+\usepackage{xeCJK}
+
+%opening
+\title{概率论与数理统计}
+\author{Yang Fu}
+\date{Dec 2022}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+
+\end{abstract}
+
+\section{随机事件和概率}
+
+\textbf{随机现象}：在个别试验中结果呈现不确定性，在大量重复试验中结果具有统计规律性的现象。
+
+\textbf{随机试验}：研究随机现象的试验或者观察。
+
+\textbf{随机事件}：随机试验的每一种结果。
+
+\textbf{频率和概率}：随着试验次数增大，频率趋于稳定，此时的频率值视为概率值。
+
+\textbf{条件概率}：已知事件A出现的条件下，事件B出现的条件概率$P(B|A)$为
+
+\begin{equation}\label{key}
+	P(B|A) = \frac{P(AB)}{P(A)}
+\end{equation}
+
+\textbf{贝叶斯公式}：设$\{H_1, ..., H_n, ...\}$是可数个概率不为0的事件构成完全事件组，且$P(A)>0$，则对于任意事件$A$，有
+
+\begin{equation}\label{key}
+	P(H_k|A) = \frac{P(AH_k)}{P(A)} = \frac{P(A|H_k)P(H_k)}{\sum_jP(A|H_j)P(H_j)} (k=1, 2, ..., n, ...)
+\end{equation}
+\end{document}
