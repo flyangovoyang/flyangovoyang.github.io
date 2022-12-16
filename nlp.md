@@ -10,7 +10,7 @@
     - **FastText**: [paper][[notes](fasttext.html)]
     - **Transformer**: [paper][[notes](Transformer.pdf)]
 - publised after 2018
-    - **BERT**: [paper][[notes](BERT.pdf)]
+    - **BERT**: [paper][[notes](BERT)]
     - **RoBERTa**: [paper][[notes](RoBERTa.pdf)]
     - **XLNet**: [paper][[notes](XLNet_Transformer-XL.pdf)]
     - **ELECTRA**: [paper][[notes](ELECTRA.html)]
