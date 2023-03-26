@@ -37,18 +37,7 @@
 <body>
     <div class="container">
         <div class="header">
-            <p class="title">
-                <a href="https://flyangovoyang.github.io/index.html">YOUNGNLP</a>
-                <a class="left-margin right" href="https://flyangovoyang.github.io/faq.html">关于</a>
-                <a class="left-margin right" href="https://flyangovoyang.github.io/essays.html">随笔</a>
-                <a class="left-margin right" href="https://flyangovoyang.github.io/blogs.html">博客</a>
-            </p>
             <h1 class="text-center">如何理解条件随机场CRF</h1>
-            <p class="text-center">
-                <span class="glyphicon glyphicon-calendar"></span> <span>Jan 04 2021</span>
-                <span class="glyphicon glyphicon-book left-margin"></span> <span><a
-                        href="https://flyangovoyang.github.io/uncategories.html">未分类</a></span>
-            </p>
         </div>
         <div class="content">
             <p>CRF是概率图模型中一个非常经典的概率无向图模型，常用在命名实体识别等序列标注任务上。</p>
@@ -60,7 +49,7 @@
             <p>条件随机场在此基础上加了一个随机变量X进来，于是$P(Y)$变成$P(Y_v|X, Y_w, w {=}\mathllap{/\,} v) = P(Y_v|X, Y_v, w \sim
                 v)$，其中$\sim$表示相邻。此时，Y仍旧满足马尔可夫随机场。</p>
             <p>线性链条件随机场在此基础上，要求Y具有链式结构，但是对X没有要求，可用下图来表示：</p>
-            <p class="text-center"><img src="https://flyangovoyang.github.io/images/crf.png" /></p>
+            <p class="text-center"><img src="images/crf.png" /></p>
             <p>这里的定义是：</p>
             <p>
                 $$
